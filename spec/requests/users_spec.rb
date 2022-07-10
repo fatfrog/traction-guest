@@ -39,7 +39,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'POST /create' do
-    it 'creates user successfully, adds it to @@users' do
+    it 'creates user, adds user to memory' do
       expect do
         post '/users', params: correct_params
       end.to change { User.all.count }.from(0).to(1)
@@ -48,18 +48,21 @@ RSpec.describe 'Users', type: :request do
 
     it 'fails without first name' do
       post '/users', params: no_first_name_params
+
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'first_name' => ["can't be blank"] } })
     end
 
     it 'fails without last name' do
       post '/users', params: no_last_name_params
+
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'last_name' => ["can't be blank"] } })
     end
 
     it 'fails without correct email format' do
       post '/users', params: incorrect_email_params
+
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'email' => ['is invalid'] } })
     end
@@ -70,6 +73,16 @@ RSpec.describe 'Users', type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'not_unique' => ['Record is not unique'] } })
+    end
+  end
+
+  describe 'DELETE /users' do
+    it 'deletes user, removes from memory' do
+      post '/users', params: correct_params
+      expect do
+        delete '/users/', params: correct_params
+      end.to change { User.all.count }.from(1).to(0)
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

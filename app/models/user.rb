@@ -18,6 +18,15 @@ class User
     def all
       @@users
     end
+
+    def where(params, attributes_format: true)
+      users = all.select { |user| user.attributes.values_at(*params.keys.map(&:to_sym)) == params.values }
+      attributes_format ? users.map(&:attributes) : users
+    end
+
+    def delete_all
+      @@users = []
+    end
   end
 
   def save
@@ -25,6 +34,11 @@ class User
 
     @@users << self
     self.attributes
+  end
+
+  def delete
+    User.all.reject! { |user| user == self }
+    nil
   end
 
   def attributes
