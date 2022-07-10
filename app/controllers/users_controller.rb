@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   def create
     user = User.new(user_params)
+
     if user.save
       render json: user.attributes, status: :created
     else
@@ -9,11 +10,12 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    users = User.where(params[:user], attributes_format: false)
+    users = User.where(params[:user], return_attributes: false)
+
     if users.none?
-      render json: { errors: 'User not found', status: :not_found }
+      render json: { errors: 'User not found' }, status: :not_found
     elsif users.many?
-      render json: { errors: 'User not unique', status: :unprocessable_entity }
+      render json: { errors: 'User not unique' }, status: :unprocessable_entity
     else
       users.first.delete
       head :no_content, status: :ok
