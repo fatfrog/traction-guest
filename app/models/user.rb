@@ -19,9 +19,24 @@ class User
       @@users
     end
 
-    def where(params, return_attributes: true)
+    def where(params, return_object: false)
       users = all.select { |user| user.attributes.values_at(*params.keys.map(&:to_sym)) == params.values }
-      return_attributes ? users.map(&:attributes) : users
+      if users.any?
+        return_object ? users : users.map(&:attributes)
+      elsif users.none?
+        UserError.new(message: 'Record not found.', status: :not_found)
+      end
+    end
+
+    def find(params, return_object: false)
+      users = all.select { |user| user.attributes.values_at(*params.keys.map(&:to_sym)) == params.values }
+      if users.many?
+        UserError.new(message: 'Too many records.', status: :unprocessable_entity)
+      elsif users.none?
+        UserError.new(message: 'Record not found.', status: :not_found)
+      else
+        return_object ? users : users.map(&:attributes).first
+      end
     end
 
     def delete_all
