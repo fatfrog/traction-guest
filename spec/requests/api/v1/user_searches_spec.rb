@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe UserSearchesController, type: :request do
+RSpec.describe Api::V1::UserSearchesController, type: :request do
   describe 'GET /user_searches' do
     let(:headers) { { "Content-Type" => "application/json" } }
 
@@ -31,13 +31,13 @@ RSpec.describe UserSearchesController, type: :request do
     end
 
     it 'returns all records' do
-      get '/user_searches', params: search_params, headers: headers
+      get '/api/v1/user_searches', params: search_params, headers: headers
 
       expect(JSON.parse(response.body).length).to eq(2)
     end
 
     it 'returns too many records error' do
-      get "/user_searches?single=true&#{search_params}", headers: headers
+      get "/api/v1/user_searches?single=true&#{search_params}", headers: headers
 
       expect(JSON.parse(response.body)).to eq({ "error" => "Too many records." })
       expect(response).to have_http_status(:unprocessable_entity)

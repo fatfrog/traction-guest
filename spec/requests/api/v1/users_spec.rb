@@ -54,36 +54,36 @@ RSpec.describe User, type: :request do
   describe 'POST /create' do
     it 'creates user, adds user to memory' do
       expect do
-        post '/users', params: params1
+        post '/api/v1/users', params: params1
       end.to change { User.all.count }.from(0).to(1)   
 
       expect(response).to have_http_status(:created)
     end
 
     it 'fails without first name' do
-      post '/users', params: no_first_name_params
+      post '/api/v1/users', params: no_first_name_params
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'first_name' => ["can't be blank"] } })
     end
 
     it 'fails without last name' do
-      post '/users', params: no_last_name_params
+      post '/api/v1/users', params: no_last_name_params
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'last_name' => ["can't be blank"] } })
     end
 
     it 'fails without correct email format' do
-      post '/users', params: incorrect_email_params
+      post '/api/v1/users', params: incorrect_email_params
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'email' => ['is invalid'] } })
     end
 
     it 'fails for duplicate records' do
-      post '/users', params: params1
-      post '/users', params: params1
+      post '/api/v1/users', params: params1
+      post '/api/v1/users', params: params1
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)).to eq({ 'errors' => { 'not_unique' => ['Record is not unique'] } })
@@ -93,26 +93,26 @@ RSpec.describe User, type: :request do
   describe 'DELETE /users' do
     it 'deletes user, removes from memory' do
       User.delete_all
-      post '/users', params: params1
+      post '/api/v1/users', params: params1
       expect do
-        delete '/users', params: params1
+        delete '/api/v1/users?first_name=Bill'
       end.to change { User.all.count }.from(1).to(0)
       expect(response).to have_http_status(:no_content)
     end
 
     it 'returns unprocessable_entity if there are multiple matches' do
-      post '/users', params: params1
-      post '/users', params: params2
+      post '/api/v1/users', params: params1
+      post '/api/v1/users', params: params2
       expect do
-        delete '/users', params: { user: { last_name: 'Bailey' } }
+        delete '/api/v1/users', params: { user: { last_name: 'Bailey' } }
       end.not_to change { User.all.count }
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
     it 'returns not_found if there are no matches' do
-      post '/users', params: params1
+      post '/api/v1/users', params: params1
       expect do
-        delete '/users', params: { user: { last_name: 'No Match Name' } }
+        delete '/api/v1/users?first_name=Wrong_Name'
       end.not_to change { User.all.count }
       expect(response).to have_http_status(:not_found)
     end
