@@ -1,4 +1,4 @@
-class Api::V1::UserSearchesController < ApplicationController
+class Api::V1::SearchController < ApplicationController
   def index
     response = params[:single] ? User.find(user_params) : User.where(user_params)
     
