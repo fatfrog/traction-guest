@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::SearchController, type: :request do
-  describe 'GET /user/searche' do
+RSpec.describe Api::V1::Users::SearchController, type: :request do
+  describe 'GET /user/search' do
     let(:headers) { { "Content-Type" => "application/json" } }
 
     let(:params1) do
